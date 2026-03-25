@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fiche découverte · ERA</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f8f9fc;
+      color: #1e2a3e;
+      line-height: 1.5;
+      padding: 20px 16px 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .slide {
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.02);
+      padding: 24px 20px 32px;
+      margin-bottom: 20px;
+    }
+
+    .slide-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .slide-icon {
+      font-size: 32px;
+    }
+
+    .slide-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e2a3e;
+      letter-spacing: -0.3px;
+    }
+
+    .slide-sub {
+      font-size: 14px;
+      color: #5a6e8a;
+      margin-top: 4px;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin: 16px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #c8922a;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn-choice {
+      background: #f1f4f9;
+      border: 1px solid #e2e8f0;
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #1e2a3e;
+      text-align: center;
+    }
+
+    .btn-choice.selected {
+      background: #c8922a;
+      border-color: #c8922a;
+      color: white;
+    }
+
+    .btn-choice:active {
+      transform: scale(0.97);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #dce3ec;
+      border-radius: 16px;
+      font-size: 16px;
+      background: white;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #c8922a;
+      box-shadow: 0 0 0 3px rgba(200,146,42,0.2);
+    }
+
+    .dynamic-field {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .dynamic-field.show {
+      display: block;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+
+    .btn-nav {
+      background: #eef2f6;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+      color: #1e2a3e;
+    }
+
+    .btn-nav.primary {
+      background: #c8922a;
+      color: white;
+    }
+
+    .btn-nav:active {
+      transform: scale(0.96);
+    }
+
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 16px 0 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 8px;
+      background: #cbd5e1;
+      transition: 0.2s;
+    }
+
+    .dot.active {
+      background: #c8922a;
+      width: 24px;
+    }
+
+    .recap-card {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .recap-line {
+      padding: 8px 0;
+      border-bottom: 1px solid #e9eef3;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .recap-label {
+      font-weight: 600;
+      width: 110px;
+      color: #4a5b7a;
+    }
+
+    .recap-value {
+      flex: 1;
+      color: #1e2a3e;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2c3e50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: 0.2s;
+      pointer-events: none;
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    @media (max-width: 500px) {
+      body { padding: 16px 12px 32px; }
+      .slide { padding: 20px 16px 28px; }
+      .btn-choice { padding: 8px 14px; font-size: 14px; }
+      .btn-nav { padding: 10px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<div id="toast" class="toast">✅ Envoyé !</div>
+
+<script>
+  // ---------- DÉFINITION DES ÉTAPES ----------
+  const steps = [
+    { id: 'nom', question: '👋 Comment vous appelez-vous ?', type: 'text', placeholder: 'Prénom et nom', required: true },
+    { id: 'projet', question: '🎯 Quel est votre projet ?', type: 'single-choice', options: ['Achat résidence principale', 'Achat investissement locatif', 'Achat résidence secondaire', 'Achat pour un proche', 'Je ne sais pas encore'], hasOther: true, required: true },
+    { id: 'type', question: '🏢 Appartement ou maison ?', type: 'multi', options: ['Appartement', 'Maison', 'Duplex', 'Loft'], hasOther: true, required: false },
+    { id: 'surface', question: '📐 Surface minimum ?', type: 'single-choice', options: ['<30 m²', '30-40 m²', '40-50 m²', '50-60 m²', '60-70 m²', '70-80 m²', '>80 m²'], hasOther: true, required: false },
+    { id: 'pieces', question: '🛋️ Nombre de pièces minimum ?', type: 'single-choice', options: ['1', '2', '3', '4', '5+'], hasOther: true, required: false },
+    { id: 'chambres', question: '🛏️ Nombre de chambres minimum ?', type: 'single-choice', options: ['0', '1', '2', '3', '4+'], hasOther: true, required: false },
+    { id: 'exterieur', question: '🌿 Avez-vous besoin d’un extérieur ?', type: 'multi', options: ['Balcon', 'Terrasse', 'Jardin', 'Pas besoin'], hasOther: true, required: false },
+    { id: 'secteurs', question: '📍 Où souhaitez-vous habiter ?', type: 'multi', options: ['La Plaine Saint-Denis', 'Stains', 'L’Île-Saint-Denis', 'Saint-Denis centre', 'Pleyel', 'Front Populaire', 'Garges-lès-Gonesse', 'Sarcelles'], hasOther: true, required: true },
+    { id: 'budget', question: '💰 Votre budget maximum ?', type: 'single-choice', options: ['<150 000 €', '150-200 000 €', '200-250 000 €', '250-300 000 €', '300-400 000 €', '>400 000 €'], hasOther: true, required: true },
+    { id: 'apport', question: '💶 Apport personnel (€)', type: 'single-choice', options: ['0 €', '10 000 €', '20 000 €', '30 000 €', '50 000 €', '>50 000 €', 'Je ne sais pas'], hasOther: true, required: false },
+    { id: 'financement', question: '🏦 Où en est votre financement ?', type: 'single-choice', options: ['Accord de principe', 'Simulation en cours', 'Contact avec courtier', 'Pas encore', 'Achat comptant'], hasOther: true, required: true },
+    { id: 'vente', question: '🔄 Avez-vous un bien à vendre ?', type: 'single-choice', options: ['Oui', 'Non'], hasOther: true, required: false },
+    { id: 'echeance', question: '📅 Votre échéance idéale ?', type: 'single-choice', options: ['Moins de 3 mois', '3 à 6 mois', '6 à 12 mois', 'Plus d’un an', 'Flexible'], hasOther: true, required: true },
+    { id: 'declencheur', question: '💡 Qu’est-ce qui vous a décidé à chercher maintenant ?', type: 'text', placeholder: 'Naissance, mutation, investissement…', required: false },
+    { id: 'priorite', question: '⭐ Si vous ne gardez qu’un seul critère ?', type: 'single-choice', options: [], dynamicOptions: true, hasOther: true, required: false },
+    { id: 'libre', question: '💬 Ce que vous n’avez pas pu dire dans les cases', type: 'textarea', placeholder: 'Votre message…', required: false }
+    // Téléphone supprimé
+  ];
+
+  let currentStep = 0;
+  let answers = {};
+
+  // Récupérer le prénom depuis l'URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const prenomUrl = urlParams.get('prenom');
+  if (prenomUrl) {
+    answers.nom = prenomUrl;
+  }
+
+  // Charger sauvegarde locale
+  const saved = localStorage.getItem('fiche_decouverte');
+  if (saved) {
+    try {
+      const { step, answers: savedAnswers } = JSON.parse(saved);
+      if (typeof step === 'number' && step < steps.length) {
+        currentStep = step;
+        answers = { ...answers, ...savedAnswers };
+      }
+    } catch(e) {}
+  }
+
+  function saveState() {
+    localStorage.setItem('fiche_decouverte', JSON.stringify({ step: currentStep, answers }));
+  }
+
+  // Générer les options pour la question "priorité" (dynamique)
+  function getPriorityOptions() {
+    const options = [];
+    if (answers.surface) options.push(`Surface : ${answers.surface}`);
+    if (answers.pieces) options.push(`Pièces : ${answers.pieces}`);
+    if (answers.chambres) options.push(`Chambres : ${answers.chambres}`);
+    if (answers.budget) options.push(`Budget : ${answers.budget}`);
+    if (answers.secteurs) options.push(`Secteurs : ${answers.secteurs}`);
+    if (answers.exterieur) options.push(`Extérieur : ${answers.exterieur}`);
+    if (answers.type) {
+      let typeVal = answers.type;
+      if (answers.type_other) typeVal = `Autre : ${answers.type_other}`;
+      options.push(`Type : ${typeVal}`);
+    }
+    if (answers.projet) options.push(`Projet : ${answers.projet}`);
+    if (answers.financement) options.push(`Financement : ${answers.financement}`);
+    if (answers.echeance) options.push(`Échéance : ${answers.echeance}`);
+    if (answers.vente) options.push(`Vente : ${answers.vente}`);
+    if (answers.apport) options.push(`Apport : ${answers.apport}`);
+    if (options.length === 0) options.push('Aucun critère défini');
+    return options;
+  }
+
+  function render() {
+    let step = steps[currentStep];
+    // Mise à jour dynamique pour la priorité
+    if (step.id === 'priorite') {
+      step.options = getPriorityOptions();
+    }
+    const progressPercent = ((currentStep + 1) / steps.length) * 100;
+    const html = `
+      <div class="slide">
+        <div class="slide-header">
+          <div class="slide-icon">${step.question.split(' ')[0]}</div>
+          <div>
+            <div class="slide-title">${step.question}</div>
+            <div class="slide-sub">2 minutes pour définir votre projet</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${progressPercent}%"></div>
+        </div>
+        <div>${renderInput(step)}</div>
+        <div class="nav-buttons">
+          <button class="btn-nav" onclick="prevStep()" ${currentStep === 0 ? 'disabled style="opacity:0.4"' : ''}>← Retour</button>
+          <button class="btn-nav primary" onclick="nextStep()">${currentStep === steps.length-1 ? 'Envoyer' : 'Suivant →'}</button>
+        </div>
+        <div class="progress-dots">
+          ${steps.map((_, i) => `<div class="dot ${i === currentStep ? 'active' : ''}"></div>`).join('')}
+        </div>
+      </div>
+    `;
+    document.getElementById('app').innerHTML = html;
+    restoreSelected();
+    // Gérer l'affichage du champ "Autre" pour cette étape
+    if (step.hasOther) {
+      const val = answers[step.id] || '';
+      const selected = val ? (step.type === 'multi' ? val.split(',') : [val]) : [];
+      const otherSelected = selected.includes('Autre');
+      const otherField = document.getElementById(`other-${step.id}`);
+      if (otherField) {
+        if (otherSelected) {
+          otherField.classList.add('show');
+        } else {
+          otherField.classList.remove('show');
+        }
+      }
+    }
+  }
+
+  function renderInput(step) {
+    const val = answers[step.id] || '';
+    if (step.type === 'text') {
+      return `<input type="text" id="input-${step.id}" value="${escapeHtml(val)}" placeholder="${step.placeholder || ''}" autocomplete="off">`;
+    }
+    if (step.type === 'textarea') {
+      return `<textarea id="input-${step.id}" rows="3" placeholder="${step.placeholder || ''}">${escapeHtml(val)}</textarea>`;
+    }
+    if (step.type === 'single-choice' || step.type === 'multi') {
+      const selected = val ? (step.type === 'multi' ? val.split(',') : [val]) : [];
+      let buttonsHtml = `<div class="btn-group">`;
+      for (let opt of step.options) {
+        const isSelected = selected.includes(opt);
+        buttonsHtml += `<button class="btn-choice ${isSelected ? 'selected' : ''}" onclick="toggleChoice('${step.id}','${escapeHtml(opt)}', '${step.type}')">${opt}</button>`;
+      }
+      // Ajouter le bouton "Autre" si la question a hasOther
+      if (step.hasOther) {
+        const isOtherSelected = selected.includes('Autre');
+        buttonsHtml += `<button class="btn-choice ${isOtherSelected ? 'selected' : ''}" onclick="toggleChoice('${step.id}','Autre', '${step.type}')">Autre</button>`;
+      }
+      buttonsHtml += `</div>`;
+      if (step.hasOther) {
+        const otherValue = answers[`${step.id}_other`] || '';
+        buttonsHtml += `<div id="other-${step.id}" class="dynamic-field">
+                          <input type="text" id="other-input-${step.id}" placeholder="Précisez votre choix" value="${escapeHtml(otherValue)}">
+                        </div>`;
+      }
+      return buttonsHtml;
+    }
+    return '';
+  }
+
+  function toggleChoice(id, value, type) {
+    if (type === 'multi') {
+      let current = answers[id] ? answers[id].split(',') : [];
+      if (current.includes(value)) {
+        current = current.filter(v => v !== value);
+      } else {
+        current.push(value);
+      }
+      answers[id] = current.join(',');
+    } else {
+      // single-choice : remplace
+      answers[id] = value;
+    }
+    saveState();
+    render(); // re-render pour mettre à jour les boutons et l'affichage du champ "Autre"
+  }
+
+  function restoreSelected() {
+    const step = steps[currentStep];
+    if (!step) return;
+    const input = document.getElementById(`input-${step.id}`);
+    if (input && (step.type === 'text' || step.type === 'textarea')) {
+      if (answers[step.id] !== undefined) input.value = answers[step.id];
+    }
+    // Restaurer la valeur du champ "Autre" s'il existe
+    if (step.hasOther) {
+      const otherInput = document.getElementById(`other-input-${step.id}`);
+      if (otherInput && answers[`${step.id}_other`] !== undefined) {
+        otherInput.value = answers[`${step.id}_other`];
+      }
+    }
+  }
+
+  function nextStep() {
+    const step = steps[currentStep];
+    let newValue;
+    const input = document.getElementById(`input-${step.id}`);
+    if (step.type === 'text' || step.type === 'textarea') {
+      newValue = input ? input.value : '';
+    } else {
+      // Pour les boutons, récupérer la valeur depuis answers
+      newValue = answers[step.id] || '';
+      // Si la question a un champ "Autre", on récupère la valeur saisie
+      if (step.hasOther) {
+        const otherInput = document.getElementById(`other-input-${step.id}`);
+        if (otherInput && otherInput.value.trim() !== '') {
+          const otherText = otherInput.value.trim();
+          answers[`${step.id}_other`] = otherText;
+          // On s'assure que "Autre" est présent dans la sélection
+          let current = answers[step.id] ? answers[step.id].split(',') : [];
+          if (!current.includes('Autre')) {
+            current.push('Autre');
+            answers[step.id] = current.join(',');
+            saveState();
+            render();
+            setTimeout(() => {
+              const restoredOther = document.getElementById(`other-input-${step.id}`);
+              if (restoredOther) restoredOther.value = otherText;
+            }, 0);
+            return; // On reste sur l'étape pour que l'utilisateur voie le champ
+          } else {
+            // Déjà sélectionné, on met à jour le texte
+            answers[`${step.id}_other`] = otherText;
+          }
+        } else {
+          // Si le champ "Autre" est vide mais que "Autre" est sélectionné, on retire "Autre"
+          if (answers[step.id] && answers[step.id].split(',').includes('Autre')) {
+            let current = answers[step.id].split(',').filter(v => v !== 'Autre');
+            answers[step.id] = current.join(',');
+            delete answers[`${step.id}_other`];
+            saveState();
+            render();
+            return;
+          }
+        }
+      }
+    }
+    // Validation champ requis
+    if (step.required && (!newValue || newValue.trim() === '')) {
+      toast('Veuillez répondre à cette question');
+      return;
+    }
+    if (step.type !== 'text' && step.type !== 'textarea') {
+      answers[step.id] = newValue;
+    } else {
+      answers[step.id] = newValue;
+    }
+    saveState();
+
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      render();
+    } else {
+      showRecap();
+    }
+  }
+
+  function showRecap() {
+    let recapHtml = `<div class="slide">
+      <div class="slide-header">
+        <div class="slide-icon">📋</div>
+        <div>
+          <div class="slide-title">Votre fiche projet</div>
+          <div class="slide-sub">Vérifiez vos critères avant envoi</div>
+        </div>
+      </div>
+      <div class="recap-card">`;
+    for (let step of steps) {
+      let val = answers[step.id] || '—';
+      // Pour les questions avec "Autre", on peut afficher le détail
+      if (step.hasOther && answers[`${step.id}_other`]) {
+        val = val.replace('Autre', `Autre : ${answers[`${step.id}_other`]}`);
+      }
+      if (val !== '—' || step.id === 'libre') {
+        let label = step.question.split(' ').slice(1).join(' ').replace(/^[^a-z]*/, '');
+        recapHtml += `<div class="recap-line"><div class="recap-label">${label}</div><div class="recap-value">${escapeHtml(val)}</div></div>`;
+      }
+    }
+    recapHtml += `</div>
+      <div class="nav-buttons">
+        <button class="btn-nav" onclick="currentStep--; render()">← Modifier</button>
+        <button class="btn-nav primary" onclick="submitForm()">✅ Envoyer à Samir</button>
+      </div>
+    </div>`;
+    document.getElementById('app').innerHTML = recapHtml;
+  }
+
+  function submitForm() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/';
+    form.style.display = 'none';
+    for (let [k, v] of Object.entries(answers)) {
+      const inp = document.createElement('input');
+      inp.name = k;
+      inp.value = v;
+      form.appendChild(inp);
+    }
+    const ts = document.createElement('input');
+    ts.name = 'timestamp';
+    ts.value = new Date().toISOString();
+    form.appendChild(ts);
+    document.body.appendChild(form);
+    form.submit();
+
+    toast('✅ Envoyé ! Merci, je vous recontacte rapidement.');
+    setTimeout(() => {
+      document.getElementById('app').innerHTML = `
+        <div class="slide" style="text-align:center">
+          <div class="slide-icon">✅</div>
+          <div class="slide-title">Merci !</div>
+          <div class="slide-sub" style="margin-bottom:24px">Votre fiche a bien été envoyée à Samir.<br>Il vous recontactera dans les meilleurs délais.</div>
+          <button class="btn-nav primary" onclick="location.reload()">↻ Nouvelle fiche</button>
+          <button class="btn-nav" style="margin-top:12px" onclick="navigator.clipboard.writeText(window.location.href)">📋 Copier le lien</button>
+        </div>
+      `;
+    }, 500);
+  }
+
+  function prevStep() {
+    if (currentStep > 0) {
+      currentStep--;
+      render();
+    }
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
