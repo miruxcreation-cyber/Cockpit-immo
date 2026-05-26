@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cockpit Agent Immo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-4">
+
+<div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl p-5">
+
+  <div class="flex mb-4 gap-2">
+    <button onclick="showTab('deal')" class="flex-1 bg-black text-white p-2 rounded-xl">Par bien</button>
+    <button onclick="showTab('ca')" class="flex-1 bg-gray-200 p-2 rounded-xl">CA global</button>
+    <button onclick="showTab('bar')" class="flex-1 bg-gray-200 p-2 rounded-xl">Barème</button>
+  </div>
+
+  <!-- ================= TAB BIEN ================= -->
+  <div id="dealTab">
+
+    <h1 class="text-xl font-bold mb-4">💰 Simulation bien</h1>
+
+    <label>Prix du bien (€)</label>
+    <input id="price" type="number" value="300000" class="w-full border p-2 rounded-xl mb-2"/>
+
+    <label>Taux honoraires (%)</label>
+    <input id="rate" type="number" value="5" class="w-full border p-2 rounded-xl mb-2"/>
+
+    <label>TVA</label>
+    <input id="tva" type="number" value="1.2" class="w-full border p-2 rounded-xl mb-2"/>
+
+    <label>Frais réseau</label>
+    <input id="fee" type="number" value="0.94" class="w-full border p-2 rounded-xl mb-4"/>
+
+    <button onclick="calcDeal()" class="w-full bg-black text-white p-3 rounded-xl mb-3">
+      Calculer
+    </button>
+
+    <div class="text-sm space-y-1">
+      <p id="res1"></p>
+      <p id="res2"></p>
+      <p id="res3"></p>
+      <p id="res4"></p>
+      <p id="res5"></p>
+    </div>
+
+    <button onclick="addDeal()" class="w-full mt-4 bg-green-600 text-white p-3 rounded-xl">
+      ➕ Ajouter au CA
+    </button>
+
+  </div>
+
+  <!-- ================= TAB CA ================= -->
+  <div id="caTab" class="hidden">
+    <h1 class="text-xl font-bold mb-4">📊 CA global</h1>
+
+    <div id="list" class="text-sm space-y-2"></div>
+
+    <hr class="my-3"/>
+
+    <p id="totalCA"></p>
+    <p id="totalComm"></p>
+    <p id="totalNet"></p>
+  </div>
+
+  <!-- ================= TAB BAREME ================= -->
+  <div id="barTab" class="hidden">
+
+    <h1 class="text-xl font-bold mb-4">📊 Barème commission</h1>
+
+    <div id="barList" class="space-y-3 text-sm"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+let deals = JSON.parse(localStorage.getItem("deals") || "[]")
+let lastDeal = null
+
+// 🔥 BAREME MODIFIABLE
+let bareme = JSON.parse(localStorage.getItem("bareme") || "null") || [
+  { limit: 40000, rate: 0.32 },
+  { limit: 72000, rate: 0.38 },
+  { limit: 110000, rate: 0.42 },
+  { limit: Infinity, rate: 0.48 }
+]
+
+function showTab(tab) {
+  dealTab.style.display = tab === 'deal' ? 'block' : 'none'
+  caTab.style.display = tab === 'ca' ? 'block' : 'none'
+  barTab.style.display = tab === 'bar' ? 'block' : 'none'
+
+  renderCA()
+  renderBar()
+}
+
+function calcDeal() {
+
+  const price = Number(priceEl().value)
+  const rate = Number(rateEl().value)
+  const tva = Number(tvaEl().value)
+  const fee = Number(feeEl().value)
+
+  const fees = price * rate / 100
+  const ht = fees / tva
+  const afterFee = ht * fee
+
+  let palier = bareme.find(b => afterFee <= b.limit).rate
+
+  const gross = afterFee * palier
+  const urssaf = gross * 0.78
+  const net = urssaf * 0.92
+
+  lastDeal = { price, fees, gross, net }
+
+  res1().innerText = "Honoraires : " + fees.toFixed(0) + " €"
+  res2().innerText = "Commission brute : " + gross.toFixed(0) + " €"
+  res3().innerText = "Net réel : " + net.toFixed(0) + " €"
+}
+
+function addDeal() {
+  if (!lastDeal) return
+  deals.push(lastDeal)
+  localStorage.setItem("deals", JSON.stringify(deals))
+  alert("Ajouté")
+}
+
+function renderCA() {
+
+  let ca = 0, comm = 0, net = 0
+
+  list().innerHTML = ""
+
+  deals.forEach((d, i) => {
+    ca += d.price
+    comm += d.gross
+    net += d.net
+
+    list().innerHTML += `<div>Vente ${i+1} - ${d.price}€</div>`
+  })
+
+  totalCAel().innerText = "CA : " + ca.toFixed(0) + " €"
+  totalCommel().innerText = "Commission : " + comm.toFixed(0) + " €"
+  totalNetel().innerText = "Net : " + net.toFixed(0) + " €"
+}
+
+function renderBar() {
+
+  barList.innerHTML = ""
+
+  bareme.forEach((b, i) => {
+    barList.innerHTML += `
+      <div class="p-3 bg-gray-100 rounded-xl">
+        <input value="${b.limit}" onchange="updateBar(${i}, 'limit', this.value)" class="border p-1 w-full mb-1"/>
+        <input value="${b.rate}" onchange="updateBar(${i}, 'rate', this.value)" class="border p-1 w-full"/>
+      </div>
+    `
+  })
+}
+
+function updateBar(i, key, value) {
+  bareme[i][key] = Number(value)
+  localStorage.setItem("bareme", JSON.stringify(bareme))
+}
+
+function priceEl(){return document.getElementById("price")}
+function rateEl(){return document.getElementById("rate")}
+function tvaEl(){return document.getElementById("tva")}
+function feeEl(){return document.getElementById("fee")}
+
+function res1(){return document.getElementById("res1")}
+function res2(){return document.getElementById("res2")}
+function res3(){return document.getElementById("res3")}
+
+function list(){return document.getElementById("list")}
+
+function totalCAel(){return document.getElementById("totalCA")}
+function totalCommel(){return document.getElementById("totalComm")}
+function totalNetel(){return document.getElementById("totalNet")}
+
+let dealTab = document.getElementById("dealTab")
+let caTab = document.getElementById("caTab")
+let barTab = document.getElementById("barTab")
+
+renderCA()
+renderBar()
+showTab("deal")
+
+</script>
+
+</body>
+</html>
